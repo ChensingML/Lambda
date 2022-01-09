@@ -9,7 +9,7 @@ A simple fan-made "Phigros" emulator in Android
  + The program is made by _AIDE_, an Android IDE that runs on Android, not _Android Studio_.
  + The program and its code can be ___Low Quality___ because of my ability, so read&use them after thinking it over carefully.
  + Don't care the grammatical problems in this file.
- Enjoy!
- Chen.ZH
+ Enjoy! 
+ Chen.ZH 
 
 
