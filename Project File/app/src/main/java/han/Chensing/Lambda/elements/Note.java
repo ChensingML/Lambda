@@ -10,6 +10,7 @@ public abstract class Note extends Element
 	protected double distanceLine;
 	protected double positionLine;
 	protected boolean clicked;
+	protected int scoreState;
 	
 	protected Path[] currentPaths;
 	protected Paint[] currentPaints;
@@ -18,6 +19,14 @@ public abstract class Note extends Element
 	protected final static Path cpathIn;
 
 	public static final float clickDistance=60;
+
+	public void setScoreState(int scoreState){
+		this.scoreState = scoreState;
+	}
+
+	public int getScoreState(){
+		return scoreState;
+	}
 
 	public void setClicked(boolean clicked){
 		this.clicked = clicked;
