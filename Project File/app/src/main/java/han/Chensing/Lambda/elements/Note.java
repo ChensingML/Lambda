@@ -165,4 +165,14 @@ public abstract class Note extends Element
 		currentPaths[1].offset(dx,dy);
 		DpCanvas.drawPaths(can,currentPaths,currentPaints);
 	}
+
+	@Override
+	public void logic()
+	{
+		super.logic();
+		distanceLine-=
+			isUsingLineSet?
+				bindLineSet.getSpeedRate():
+				bindLine.getSpeedRate();
+	}
 }

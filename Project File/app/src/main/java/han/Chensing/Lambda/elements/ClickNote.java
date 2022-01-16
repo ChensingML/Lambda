@@ -22,4 +22,11 @@ public class ClickNote extends Note
 			return;
 		super.draw(can);
 	}
+
+	@Override
+	public void logic()
+	{
+		super.logic();
+	}
+	
 }

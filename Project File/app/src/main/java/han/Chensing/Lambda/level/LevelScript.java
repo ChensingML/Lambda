@@ -1,37 +1,98 @@
 package han.Chensing.Lambda.level;
 import java.util.*;
 import han.Chensing.Lambda.elements.*;
+import java.io.*;
+import han.Chensing.Lambda.util.*;
 
-public class LevelScript
+public class LevelScript implements Serializable
 {
 	private ArrayList<ScriptItem> itemOrg;
 	private ArrayList<ScriptItem> itemLive;
-	private LinkedList<Element> lines;
+	private LinesContainer lines;
 	private LinkedList<Element> notes;
 	private int index;
+	private int size;
 	private long startTime;
 
-	protected LevelScript(LinkedList<Element> lines, LinkedList<Element> notes,ArrayList<ScriptItem> items)
+	public LevelScript(LinesContainer lines, LinkedList<Element> notes)
 	{
 		this.index=0;
 		this.startTime=System.currentTimeMillis();
 		this.lines = lines;
 		this.notes = notes;
-		this.itemOrg=items;
-		this.itemLive=new ArrayList<ScriptItem>(itemOrg);
 	}
 	
-	public ScriptItem next(){
+	public void setItems(ArrayList<ScriptItem> items){
+		this.itemOrg=items;
+		this.itemLive=new ArrayList<ScriptItem>(itemOrg);
+		this.size=this.itemOrg.size();
+	}
+	
+	public List<ScriptItem> next(){
 		long now=System.currentTimeMillis();
 		long delay=now-startTime;
-		return null;
+		long l=delay-20;
+		long r=delay+30;
+		ArrayList<ScriptItem> si=new ArrayList<>();
+		int i=index;
+		int inva=index;
+		for(;i<size&&i<index+10;i++){
+			ScriptItem sc=itemLive.get(i);
+			long cu=sc.getDelayTime();
+			if(l<=cu&&r>=cu){
+				if(!sc.isSolved())
+					si.add(sc);
+				sc.setSolved(true);
+				inva=i;
+			}
+		}
+		index=inva;
+		return si;
+	}
+	
+	/**
+	 *	Script args
+	 *	CREATE_NOTE:
+	 * 		[0]		Name of Line
+	 * 		[1]		Type of Note
+	 * 					c - Click
+	 * 		[2]		Line position
+	 * 		[3]		Line distance
+	 */
+	public void solveNext(){
+		List<ScriptItem> ns=next();
+		for(ScriptItem i:ns){
+			switch(i.getType()){
+				case CREATE_NOTE:{
+					String[] args=i.getArgs();
+					Element e=lines.findLine(args[0]);
+					boolean isLineSet=e instanceof LineSet;
+					Note n;
+					switch(args[1].charAt(0)){
+						case 'c':{
+							n=new ClickNote();
+							if(isLineSet)
+								n.setBindLineSet((LineSet)e);
+							else
+								n.setBindLine((Line)e);
+							n.setPositionLine(Double.parseDouble(args[2]));
+							n.setDistanceLine(Double.parseDouble(args[3]));
+							n.setClicked(false);
+							notes.add(n);
+							break;
+						}
+					}
+					break;
+				}
+			}
+		}
 	}
 	
 	public static class ScriptItem{
 		private long delayTime;
 		private boolean solved;
 		private OpratingType type;
-		private int[] args;
+		private String[] args;
 		
 		public ScriptItem(){
 			this.solved=false;
@@ -61,11 +122,11 @@ public class LevelScript
 			return type;
 		}
 
-		public void setArgs(int[] args){
+		public void setArgs(String[] args){
 			this.args = args;
 		}
 
-		public int[] getArgs(){
+		public String[] getArgs(){
 			return args;
 		}
 		

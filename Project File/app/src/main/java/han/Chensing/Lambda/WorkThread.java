@@ -6,21 +6,24 @@ import han.Chensing.Lambda.elements.*;
 import han.Chensing.Lambda.util.*;
 import han.Chensing.Lambda.math.*;
 import han.Chensing.Lambda.logic.*;
+import han.Chensing.Lambda.level.*;
 
 public class WorkThread extends Thread
 {
 	private CSV con;
 	private volatile boolean running;
 
-	private LinkedList<Element> lines;
+	private LinesContainer lines;
 	private LinkedList<Element> notes;
 	private LinkedList<Element> effects;
+	
+	private LevelScript testScript;
 
 	public WorkThread(CSV con){
 		super();
 		this.con = con;
 		running = true;
-		lines = new LinkedList<>();
+		lines = new LinesContainer();
 		notes = new LinkedList<>();
 		effects = new LinkedList<>();
 		LineSet l=new LineSet();
@@ -35,9 +38,16 @@ public class WorkThread extends Thread
 		l.setX(0);
 		l.setY(700);
 		l.setDirection(0);
-		lines.add(l);
-		
-		
+		l.setSpeedRate(5);
+		lines.add(l,"set1");
+		testScript=new LevelScript(lines,notes);
+		ArrayList<LevelScript.ScriptItem> it=new ArrayList<>();
+		LevelScript.ScriptItem i1=new LevelScript.ScriptItem();
+		i1.setDelayTime(3000);
+		i1.setType(LevelScript.ScriptItem.OpratingType.CREATE_NOTE);
+		i1.setArgs(new String[]{"set1","c","300","1000"});
+		it.add(i1);
+		testScript.setItems(it);
 	}
 
 	@Override
@@ -49,7 +59,7 @@ public class WorkThread extends Thread
 			Canvas can=(con.getHolder().lockCanvas());
 			try{
 				can.drawColor(Color.BLACK);
-				DrawUtil.drawAndLogicAll(lines, can);
+				DrawUtil.drawAndLogicAll(lines.getLines(), can);
 				DrawUtil.drawAndLogicAll(notes, can);
 				DrawUtil.drawAndLogicAll(effects, can);
 
@@ -67,7 +77,7 @@ public class WorkThread extends Thread
 						}
 					}
 				}
-				if(cc--<=0){
+				/*if(cc--<=0){
 					cc=10;
 					ClickNote n=new ClickNote(){
 						public void logic(){
@@ -75,11 +85,11 @@ public class WorkThread extends Thread
 							setDistanceLine(getDistanceLine()-10);
 						}
 					};
-					n.setBindLineSet((LineSet)lines.get(0));
+					n.setBindLineSet((LineSet)lines.findLine("set1"));
 					n.setDistanceLine(1000);
 					n.setPositionLine(r.nextInt(700));
 					notes.add(n);
-				}
+				}*/
 				Iterator<Element> ie=notes.iterator();
 				while (ie.hasNext()){
 					Note n=(Note)ie.next();
@@ -100,6 +110,8 @@ public class WorkThread extends Thread
 						ie.remove();
 					}
 				}
+				
+				testScript.solveNext();
 			}catch (Exception e){
 				e.printStackTrace();
 			}
